@@ -2,11 +2,19 @@ import Link from "next/link";
 
 import { LatestPost } from "~/app/_components/post";
 import { api, HydrateClient } from "~/trpc/server";
+import GoogleMapsComponent from "~/app/_components/GoogleMap";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
 
   void api.post.getLatest.prefetch();
+
+  return (
+    <div>
+      <h1>Google Maps in Next.js</h1>
+      <GoogleMapsComponent />
+    </div>
+  );
 
   return (
     <HydrateClient>
@@ -50,4 +58,9 @@ export default async function Home() {
       </main>
     </HydrateClient>
   );
+
+  
 }
+
+
+
