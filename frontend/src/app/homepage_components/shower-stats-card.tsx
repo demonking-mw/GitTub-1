@@ -22,7 +22,7 @@ const timePeriods = {
   year: "this year",
 }
 
-export default function CalorieAndStatsCard({ weather, stepsCount, recommended, completed }: CalorieAndStatsCardProps) {
+export default function CalorieAndStatsCard({ stepsCount, recommended, completed }: CalorieAndStatsCardProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<keyof typeof timePeriods>("today")
   const [baseGoals, setBaseGoals] = useState({
     today: 2,
@@ -31,11 +31,13 @@ export default function CalorieAndStatsCard({ weather, stepsCount, recommended, 
     year: 0,
   })
   const [showersTaken, setShowersTaken] = useState(0)
-
   const [streak, setStreak] = useState(0)
   const [highestStreak, setHighestStreak] = useState(0)
   const [lastShowerTime, setLastShowerTime] = useState<number | null>(null)
   const [showCongrats, setShowCongrats] = useState(false)
+
+  const [weather, setWeather] = useState<number | null>(null)
+  const [city, setCity] = useState<string>("")
 
   // Calculate progress percentage for the ring
   const circumference = 2 * Math.PI * 90
@@ -54,6 +56,25 @@ export default function CalorieAndStatsCard({ weather, stepsCount, recommended, 
 
   // Calculate color based on stinkiness percentage
   const stinkinessColor = `hsl(${120 - stinkinessPercentage * 1.2}, 100%, 50%)`
+
+  useEffect(() => {
+    async function fetchWeather() {
+      try {
+        const locationRes = await fetch("http://ip-api.com/json/")
+        const locationData = await locationRes.json()
+        const { lat, lon, city } = locationData
+        setCity(city)
+
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m`)
+        const weatherData = await weatherRes.json()
+        setWeather(weatherData.current.temperature_2m)
+      } catch (error) {
+        console.error("Error fetching weather:", error)
+      }
+    }
+
+    fetchWeather()
+  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -218,13 +239,12 @@ export default function CalorieAndStatsCard({ weather, stepsCount, recommended, 
           <div className="space-y-6">
             <h3 className="flex items-center gap-2 text-xl font-medium text-sky-800">
               <Cloud className="h-5 w-5 text-sky-600" />
-              Weather: {weather}C
+              Weather: {weather !== null ? `${weather}°C` : "Loading..."} {city && `(${city})`}
             </h3>
             <div className="space-y-1 text-sky-600">
               <p>Steps Count: {stepsCount} steps</p>
               <p>Recommended: {recommended}</p>
-              <p>
-                Completed: {showersTaken}/{recommended}
+              <p>Completed: {showersTaken}/{recommended}
               </p>
             </div>
             <div className="mt-6">
