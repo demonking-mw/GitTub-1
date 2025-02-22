@@ -4,13 +4,13 @@ import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useState } from "react";
 
 const containerStyle = {
-  width: "100%",
+  width: "400px",
   height: "400px",
 };
 
 const center = {
-  lat: 37.7749, // Default Latitude (e.g., San Francisco)
-  lng: -122.4194, // Default Longitude
+  lat: 43.4750141, // Default Latitude (e.g., WLU)
+  lng: -80.5295119, // Default Longitude
 };
 
 export default function GoogleMapsComponent() {
