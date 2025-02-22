@@ -23,7 +23,7 @@ export default function Home() {
               />
               <a
                 href="https://www.youtube.com/watch?v=dQw4w9WgXcQ?autoplay=1"
-                className="ml-4 flex items-center justify-center rounded-lg bg-blue-500 px-6 py-3 text-white shadow-lg hover:bg-blue-600"
+                className="ml-4 flex items-center justify-center rounded-lg bg-blue-500 px-6 py-3 text-white shadow-lg hover:bg-red-600"
                 style={{
                   height: "300px",
                   width: "150px",
