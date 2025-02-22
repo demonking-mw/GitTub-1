@@ -21,6 +21,7 @@ type Place = {
   description: string;
 };
 
+//places, ideally this would be read from a database for better scaling
 const places: Place[] = [
   {
     id: 1,
@@ -73,48 +74,57 @@ const places: Place[] = [
     description: "200 University Ave W, Waterloo, ON N2L 3G1",
   },
 ];
-
 export default function GoogleMapsComponent() {
   const [mapCenter, setMapCenter] = useState(center);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<{ place_id: string; description: string }[]>([]);
+  const [searchedLocation, setSearchedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
-  // Function to find the nearest POI
-  const findNearestPOI = async (location: string) => {
+  // Fetch auto-complete suggestions
+  const getSuggestions = async (input: string) => {
+    if (!input) {
+      setSuggestions([]);
+      return;
+    }
+  
+    try {
+      const response = await fetch(`pages/api/places?input=${encodeURIComponent(input)}`);
+  
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+  
+      const data = await response.json();
+      console.log("API Response:", data);
+  
+      if (data.status === "OK") {
+        setSuggestions(data.predictions);
+      } else {
+        console.error("Autocomplete Error:", data.status, data.error_message);
+        setSuggestions([]);
+      }
+    } catch (error) {
+      console.error("Error fetching autocomplete:", error);
+    }
+  };
+  
+
+  // Handle selection of a place
+  const handleSelectSuggestion = async (placeId: string) => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-          location
-        )}&key=${apiKey}`
+        `https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&key=${apiKey}`
       );
       const data = await response.json();
 
       if (data.status === "OK") {
-        const userLocation = data.results[0].geometry.location;
-        console.log("User Location:", userLocation);
-
-        let closestPlace = places[0];
-        let minDistance = Number.MAX_VALUE;
-
-        places.forEach((place) => {
-          const distance = Math.sqrt(
-            Math.pow(place.position.lat - userLocation.lat, 2) +
-              Math.pow(place.position.lng - userLocation.lng, 2)
-          );
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestPlace = place;
-          }
-        });
-
-        console.log("Closest POI:", closestPlace);
-
-        // Update map center and highlight nearest POI
-        setMapCenter(closestPlace.position);
-        setSelectedPlace(closestPlace);
+        const location = data.results[0].geometry.location;
+        setMapCenter(location);
+        setSearchedLocation(location);
+        setSuggestions([]);
+        setSearchQuery(data.results[0].formatted_address);
       } else {
-        alert("Location not found. Try again!");
+        console.error("Geocode Error:", data.status, data.error_message);
       }
     } catch (error) {
       console.error("Error fetching geocode data:", error);
@@ -123,29 +133,43 @@ export default function GoogleMapsComponent() {
 
   return (
     <div className="relative w-full max-w-3xl">
-      {/* Search Bar - Placed Above the Map */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-3/4 flex">
+      {/* Search Bar with Autocomplete */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-3/4 flex flex-col bg-white shadow-lg rounded-lg">
         <input
           type="text"
           placeholder="Enter location..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border p-2 rounded-l w-full focus:outline-none focus:ring-2 focus:ring-teal-400"
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            getSuggestions(e.target.value);
+          }}
+          className="border p-2 w-full rounded-t-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
-        <button
-          onClick={() => findNearestPOI(searchQuery)}
-          className="bg-teal-500 text-white px-4 py-2 rounded-r hover:bg-teal-600"
-        >
-          Search
-        </button>
+        {/* Suggestions Dropdown */}
+        {suggestions.length > 0 && (
+          <ul className="absolute top-full left-0 w-full bg-white border rounded-b-lg shadow-md max-h-40 overflow-auto">
+            {suggestions.map((s) => (
+              <li
+                key={s.place_id}
+                onClick={() => handleSelectSuggestion(s.place_id)}
+                className="cursor-pointer p-2 hover:bg-teal-100"
+              >
+                {s.description}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Google Map */}
-      <LoadScript googleMapsApiKey={apiKey}>
+      <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
         <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={13}>
           {places.map((place) => (
             <Marker key={place.id} position={place.position} icon={place.icon} onClick={() => setSelectedPlace(place)} />
           ))}
+
+          {/* Show searched location marker */}
+          {searchedLocation && <Marker position={searchedLocation} icon="https://maps.google.com/mapfiles/ms/icons/green-dot.png" />}
 
           {selectedPlace && (
             <InfoWindow position={selectedPlace.position} onCloseClick={() => setSelectedPlace(null)}>
