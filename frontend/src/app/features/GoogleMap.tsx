@@ -90,7 +90,7 @@ export default function GoogleMapsComponent() {
     }
   
     try {
-      const response = await fetch(`pages/api/places?input=${encodeURIComponent(input)}`);
+      const response = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${(input as string)}&key=${apiKey}`);
   
       if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
   
