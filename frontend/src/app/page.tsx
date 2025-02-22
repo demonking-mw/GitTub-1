@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Droplets } from "lucide-react"
+import { WaterDrops } from "./components/waterdrops";
 
 export default function Home() {
   return (
@@ -58,22 +58,5 @@ export default function Home() {
   );
 }
 
-function WaterDrops() {
-  return (
-    <div className="absolute inset-0">
-      {[...Array(20)].map((_, i) => (
-        <Droplets
-          key={i}
-          className="text-[#87CEFA] opacity-30 absolute animate-fall"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `-${Math.random() * 20}%`,
-            animationDuration: `${Math.random() * 3 + 2}s`,
-            animationDelay: `${Math.random() * 2}s`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
+
 
