@@ -1,53 +1,55 @@
-import Link from "next/link";
+import Image from "next/image"
+import { Droplets } from "lucide-react"
 
-import { LatestPost } from "~/app/_components/post";
-import { api, HydrateClient } from "~/trpc/server";
-
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-
-  void api.post.getLatest.prefetch();
-
+export default function Home() {
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-          </div>
-
-          <LatestPost />
+    <main className="min-h-screen">
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <WaterDrops />
         </div>
-      </main>
-    </HydrateClient>
-  );
+        <div className="relative container mx-auto px-4 py-16">
+          <h1 className="text-5xl font-bold text-center mb-8">Welcome to GitTub</h1>
+          <div className="flex justify-center mb-12">
+            <Image
+              src="/placeholder.svg?height=300&width=500"
+              alt="Bathtub"
+              width={500}
+              height={300}
+              className="rounded-lg shadow-lg"
+            />
+          </div>
+          <section className="bg-white bg-opacity-80 p-8 rounded-lg shadow-lg">
+            <h2 className="text-3xl font-semibold mb-4">About Us</h2>
+            <p className="text-lg">
+              At GitTub, we're passionate about revolutionizing your shower experience. Our innovative shower planner
+              helps you create the perfect bathing routine, save water, and enjoy a luxurious start or end to your day.
+              With customizable settings, temperature controls, and integration with smart home devices, GitTub brings
+              the future of showering to your bathroom today.
+            </p>
+          </section>
+        </div>
+      </div>
+    </main>
+  )
 }
+
+function WaterDrops() {
+  return (
+    <div className="absolute inset-0">
+      {[...Array(20)].map((_, i) => (
+        <Droplets
+          key={i}
+          className="text-[#87CEFA] opacity-30 absolute animate-fall"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `-${Math.random() * 20}%`,
+            animationDuration: `${Math.random() * 3 + 2}s`,
+            animationDelay: `${Math.random() * 2}s`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
