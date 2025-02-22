@@ -2,6 +2,8 @@
 
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { useState } from "react";
+import { useEffect } from "react";
+
 
 const containerStyle = {
   width: "100%",
@@ -90,7 +92,7 @@ export default function GoogleMapsComponent() {
     }
   
     try {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${(input as string)}&key=${apiKey}`);
+      const response = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`);
   
       if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
   
@@ -107,7 +109,6 @@ export default function GoogleMapsComponent() {
       console.error("Error fetching autocomplete:", error);
     }
   };
-  
 
   // Handle selection of a place
   const handleSelectSuggestion = async (placeId: string) => {
@@ -141,7 +142,7 @@ export default function GoogleMapsComponent() {
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
-            getSuggestions(e.target.value);
+            getSuggestions(e.target.value); // Ensure getSuggestions is defined here
           }}
           className="border p-2 w-full rounded-t-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
