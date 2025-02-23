@@ -2,6 +2,8 @@
 
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { useState } from "react";
+import { useEffect } from "react";
+
 
 const containerStyle = {
   width: "100%",
