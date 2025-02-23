@@ -11,7 +11,6 @@ import { X } from "lucide-react";
 interface CalorieAndStatsCardProps {
   weather: number
   stepsCount: number
-  recommended: number
   completed: number
 }
 
@@ -22,7 +21,7 @@ const timePeriods = {
   year: "this year",
 }
 
-export default function CalorieAndStatsCard({ stepsCount, recommended, completed }: CalorieAndStatsCardProps) {
+export default function CalorieAndStatsCard({ stepsCount, completed }: CalorieAndStatsCardProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<keyof typeof timePeriods>("today")
   const [baseGoals, setBaseGoals] = useState({
     today: 2,
@@ -35,9 +34,18 @@ export default function CalorieAndStatsCard({ stepsCount, recommended, completed
   const [highestStreak, setHighestStreak] = useState(0)
   const [lastShowerTime, setLastShowerTime] = useState<number | null>(null)
   const [showCongrats, setShowCongrats] = useState(false)
-
   const [weather, setWeather] = useState<number | null>(null)
   const [city, setCity] = useState<string>("")
+
+  // Recommendation based on weather
+  const getRecommendedShowers = (temp: number | null) => {
+    if (temp === null) return 1; // Default if loading
+    if (temp < 7) return 1;
+    if (temp < 26) return 2;
+    return 3;
+  };
+  
+  const recommendedShowers = getRecommendedShowers(weather);
 
   // Calculate progress percentage for the ring
   const circumference = 2 * Math.PI * 90
@@ -52,10 +60,11 @@ export default function CalorieAndStatsCard({ stepsCount, recommended, completed
   const isGoalReached = baseGoals[selectedPeriod] > 0 && showersTaken === baseGoals[selectedPeriod]
 
   // Calculate stinkiness percentage
-  const stinkinessPercentage = 100 - (Math.round((showersTaken / recommended) * 100))
+  const stinkinessPercentage = 100 - (Math.round((showersTaken / recommendedShowers) * 100))
 
   // Calculate color based on stinkiness percentage
   const stinkinessColor = `hsl(${120 - stinkinessPercentage * 1.2}, 100%, 50%)`
+
 
   useEffect(() => {
     async function fetchWeather() {
@@ -122,6 +131,14 @@ export default function CalorieAndStatsCard({ stepsCount, recommended, completed
     }
   }
 
+  const getWeatherDescription = (temp: number | null) => {
+    if (temp === null) return "Loading...";
+    if (temp < 7) return "very cold";
+    if (temp < 18) return "pretty warm";
+    if (temp < 26) return "sunny";
+    return "super hot";
+  }
+  
   return (
     <Card className="p-6 bg-sky-50 shadow-lg">
       <div className="flex flex-col lg:flex-row lg:gap-6">
@@ -164,8 +181,8 @@ export default function CalorieAndStatsCard({ stepsCount, recommended, completed
                 {isExceeding ? (
                   <>
                     <span className="text-2xl font-bold leading-none text-sky-800">{Math.abs(remainingOrExtra)}</span>
-                    <span className="text-sm text-sky-600 mt-1">extra is</span>
-                    <span className="text-sm text-sky-600">crazy!</span>
+                    <span className="text-sm text-sky-600 mt-1">Extra Is</span>
+                    <span className="text-sm text-sky-600">Crazy!</span>
                   </>
                 ) : (
                   <>
@@ -213,7 +230,7 @@ export default function CalorieAndStatsCard({ stepsCount, recommended, completed
           </div>
 
           <div className="mt-6 pt-6 border-t border-sky-200">
-            <p className="text-sm text-sky-600">
+            <p className="text-lg text-sky-600">
               Shower committed {timePeriods[selectedPeriod]}: {showersTaken}/{baseGoals[selectedPeriod]}(
               {Math.round(progress)}%)
             </p>
@@ -242,13 +259,14 @@ export default function CalorieAndStatsCard({ stepsCount, recommended, completed
               Weather: {weather !== null ? `${weather}°C` : "Loading..."} {city && `(${city})`}
             </h3>
             <div className="space-y-1 text-sky-600">
-              <p>Steps Count: {stepsCount} steps</p>
-              <p>Recommended: {recommended}</p>
-              <p>Completed: {showersTaken}/{recommended}
-              </p>
+              <p>Look like the weather is <span className="text-md font-semibold text-sky-700">{getWeatherDescription(weather)}</span> today, let's see if a bath is needed!</p>
+              <br></br>
+              <p>Recommended:<b> {recommendedShowers} </b></p>
+              <p>Completed: <b> {showersTaken}/{recommendedShowers}</b></p>
+              <br></br>
             </div>
             <div className="mt-6">
-              <h4 className="text-base font-medium mb-4 text-sky-800">Stinkiness Point</h4>
+              <h4 className="text-lg font-large mb-4 text-sky-800">Stinkiness Point</h4>
               <div className="flex items-end justify-between">
                 <span className="text-[100px] font-bold leading-none mt-4" style={{ color: stinkinessColor }}>
                   {stinkinessPercentage}%
