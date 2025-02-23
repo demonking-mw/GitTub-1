@@ -1,6 +1,8 @@
 // src/components/GoogleAuth.tsx
 import React from "react";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+
 interface UserDetails {
   email: string;
   name: string;
@@ -12,9 +14,10 @@ export const GoogleAuth: React.FC = () => {
   const handleSuccess = (response: CredentialResponse) => {
     const token = response.credential;
     if (token) {
-      fetchUserDetails(token); // Fetch user details using the token
+      // Decode the ID token
+      const userData: UserDetails = jwtDecode<UserDetails>(token);
+      console.log("Decoded User Info:", userData);
     }
-    console.log("Google Login Success");
   };
 
   // Handle failed login
