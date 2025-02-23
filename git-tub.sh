@@ -7,7 +7,7 @@ echo 'function git() {
         echo "touching grass for you 🌱"
         touch grass
         sleep 2
-        /mnt/c/Windows/explorer.exe https://gittub-gp6m.vercel.app/; 
+        /mnt/c/Windows/explorer.exe https://www.gittub.info/; 
     else 
         command git "$@"; 
     fi 
