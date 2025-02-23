@@ -1,6 +1,6 @@
 "use client"; // If using Next.js App Router
 
-import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker, InfoWindow, DirectionsRenderer } from "@react-google-maps/api";
 import { useState } from "react";
 import { useEffect } from "react";
 import { Autocomplete } from "@react-google-maps/api";
@@ -85,6 +85,9 @@ export default function GoogleMapsComponent() {
   const [searchedLocation, setSearchedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [userLocation, setUserLocation] = useState(null);
+
 
   const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
     setAutocomplete(autocompleteInstance);
@@ -105,46 +108,64 @@ export default function GoogleMapsComponent() {
     }
   };
   
-  // Function to find the nearest POI
-  const findNearestPOI = async (location: string) => {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-          location
-        )}&key=${apiKey}`
+  // Get User's Location on Page Load
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLoc = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setUserLocation(userLoc);
+          setMapCenter(userLoc); // Use user's location as default center
+          findNearestPOI(userLoc);
+        },
+        () => {
+          console.warn("Geolocation permission denied or unavailable. Using default location.");
+        }
       );
-      const data = await response.json();
-
-      if (data.status === "OK") {
-        const userLocation = data.results[0].geometry.location;
-        console.log("User Location:", userLocation);
-
-        let closestPlace = places[0];
-        let minDistance = Number.MAX_VALUE;
-
-        places.forEach((place) => {
-          const distance = Math.sqrt(
-            Math.pow(place.position.lat - userLocation.lat, 2) +
-              Math.pow(place.position.lng - userLocation.lng, 2)
-          );
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestPlace = place;
-          }
-        });
-
-        console.log("Closest POI:", closestPlace);
-
-        // Update map center and highlight nearest POI
-        setMapCenter(closestPlace.position);
-        setSelectedPlace(closestPlace);
-      } else {
-        alert("Location not found. Try again!");
-      }
-    } catch (error) {
-      console.error("Error fetching geocode data:", error);
     }
+  }, []);
+
+  // Find Nearest POI and Get Directions
+  const findNearestPOI = (userLoc) => {
+    let closestPlace = places[0];
+    let minDistance = Number.MAX_VALUE;
+
+    places.forEach((place) => {
+      const distance = Math.sqrt(
+        Math.pow(place.position.lat - userLoc.lat, 2) +
+        Math.pow(place.position.lng - userLoc.lng, 2)
+      );
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPlace = place;
+      }
+    });
+
+    getDirections(userLoc, closestPlace.position);
   };
+
+  // Fetch Directions
+  const getDirections = (origin, destination) => {
+    const directionsService = new google.maps.DirectionsService();
+    directionsService.route(
+      {
+        origin,
+        destination,
+        travelMode: google.maps.TravelMode.WALKING,
+      },
+      (result, status) => {
+        if (status === "OK") {
+          setDirections(result);
+        } else {
+          console.error("Directions request failed:", status);
+        }
+      }
+    );
+  };
+  
 
 
   // Handle selection of a place
@@ -170,7 +191,7 @@ export default function GoogleMapsComponent() {
   };
 
   return (
-    <div className="relative w-full max-w-3xl">
+    <div className="relative w-full max-w-1xl">
       {/* Search Bar with Autocomplete */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-3/4 flex flex-col bg-white shadow-lg rounded-lg">
       <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
@@ -199,26 +220,31 @@ export default function GoogleMapsComponent() {
 
       {/* Google Map */}
       <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
-        <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={13}>
-          {places.map((place) => (
-            <Marker key={place.id} position={place.position} icon={place.icon} onClick={() => setSelectedPlace(place)} />
-          ))}
+      <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={13}>
+  {/* Markers for POIs */}
+  {places.map((place) => (
+    <Marker key={place.id} position={place.position} icon={place.icon} onClick={() => setSelectedPlace(place)} />
+  ))}
 
-          {/* Show searched location marker */}
-          {searchedLocation && <Marker position={searchedLocation} icon={{url: "https://maps.google.com/mapfiles/kml/shapes/man.png", scaledSize: new window.google.maps.Size(40, 40),}} />}
+  {/* Searched Location Marker */}
+  {searchedLocation && <Marker position={searchedLocation} icon={{url: "https://maps.google.com/mapfiles/kml/shapes/man.png", scaledSize: new window.google.maps.Size(40, 40),}} />}
 
-          {selectedPlace && (
-            <InfoWindow position={selectedPlace.position} onCloseClick={() => setSelectedPlace(null)}>
-              <div>
-                <h2 className="text-lg text-gray-800 font-bold">{selectedPlace.name}</h2>
-                <p className="text-sm text-gray-600">{selectedPlace.description}</p>
-                <p className="text-sm text-gray-400">
-                  Coordinates: {selectedPlace.position.lat}, {selectedPlace.position.lng}
-                </p>
-              </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
+  {/* Directions Renderer */}
+  {directions && <DirectionsRenderer options={{ suppressMarkers: true }} directions={directions} />}
+
+  {/* Info Window for Selected POI */}
+  {selectedPlace && (
+    <InfoWindow position={selectedPlace.position} onCloseClick={() => setSelectedPlace(null)}>
+      <div>
+        <h2 className="text-lg text-gray-800 font-bold">{selectedPlace.name}</h2>
+        <p className="text-sm text-gray-600">{selectedPlace.description}</p>
+        <p className="text-sm text-gray-400">
+          Coordinates: {selectedPlace.position.lat}, {selectedPlace.position.lng}
+        </p>
+      </div>
+    </InfoWindow>
+  )}
+</GoogleMap>
       </LoadScript>
     </div>
   );

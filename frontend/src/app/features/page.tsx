@@ -27,15 +27,15 @@ import GoogleMapsComponent from "./GoogleMap";
       <div className="min-h-screen bg-gradient-to-br from-teal-100 to-blue-200">
         <div className="container mx-auto px-4 py-16">
           <WaterDrops />
-          <h1 className="mb-12 text-center text-4xl font-bold text-teal-800">
-            Features
+          <h1 className="mb-12 text-center text-6xl font-bold text-teal-800">
+            Map
           </h1>
   
           {/* <Map box> */}
-          <div className="mb-12 rounded-lg bg-white p-6 shadow-lg justify-center">
+          <div className="mb-12 w-[90%] max-w-4xl h-[95%] rounded-lg bg-white p-6 shadow-lg mx-auto">
             <div className="mb-4 flex items-center space-x-4">
               <Bot className="h-8 w-8 text-teal-500" />
-              <h2 className="text-2xl font-semibold text-teal-800">
+              <h2 className="text-4xl font-semibold text-teal-800">
                 Local Shower Locator
               </h2>
             </div>
