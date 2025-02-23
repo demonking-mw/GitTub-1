@@ -13,17 +13,19 @@ import {
 
 import { WaterDrops } from "@/components/waterdrops";
 
-// Updated test array of badges with progress
-const userBadges = [
-  { name: "WaterSaver (Least Shower In A Month)", icon: "Droplet", completed: 11, required: 10},
-  { name: "NoWhereToBeShow (Longest Streak of Goal Fail)", icon: "CalendarX", completed: 5, required: 8 },
-  { name: "SteamMaster (Most Shower A Day)", icon: "Cloud", completed: 3, required: 5 },
-  { name: "ShoWarrior (Most Shower A Month)", icon: "Shield", completed: 20, required: 20 },
-  { name: "NoShowerAfterHangout(Freak)", icon: "Flame", completed: 8, required: 10 },
-  { name: "HotFreak (Person with the shortest time to hit 69 showers)", icon: "Zap", completed: 15, required: 69 },
-  { name: "ShowerChamp (Highest Streak of Shower)", icon: "Award", completed: 8, required: 20},
-  { name: "MonkeyLoo(3 Weeks of No Showering)", icon: "Banana", completed: 2, required: 21 },
-];
+// Dummy variable for testing
+const user = {
+  id: "315",
+}
+
+var WaterSaver = 0;
+var NoWhereToBeShow = 0;
+var SteamMaster = 0;
+var ShoWarrior = 0;
+var NoShowerAfterHangout = 0;
+var HotFreak = 0;
+var ShowerChamp = 0;
+var MonkeyLoo = 0;
 
 const iconComponents = {
   Shield,
@@ -40,7 +42,39 @@ const iconComponents = {
 const aiComment =
   "Great job on saving water! Your 'Water Saver' and 'Quick Shower' badges show you're making a positive impact. Try to maintain a consistent shower routine to earn more badges!";
 
-export default function BadgesPage() {
+export default async function BadgesPage() {
+  const postData = {
+    userid: user.id,
+    date: new Date().toISOString().substring(0, 10)
+  };
+  
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/hotfreak", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(postData),
+    });
+    const data = await res.json();
+    HotFreak = data.total_shower_count;
+  
+  } catch (error) {
+    console.error("Error:", error);
+  }
+
+  // Updated test array of badges with progress
+  const userBadges = [
+    { name: "WaterSaver (Least Shower In A Month)", icon: "Droplet", completed: 9, required: 10},
+    { name: "NoWhereToBeShow (Longest Streak of Goal Fail)", icon: "CalendarX", completed: 5, required: 8 },
+    { name: "SteamMaster (Most Shower A Day)", icon: "Cloud", completed: 3, required: 5 },
+    { name: "ShoWarrior (Most Shower A Month)", icon: "Shield", completed: 2, required: 20 },
+    { name: "NoShowerAfterHangout(Freak)", icon: "Flame", completed: 8, required: 10 },
+    { name: "HotFreak (Complete 69 showers)", icon: "Zap", completed: HotFreak, required: 69 },
+    { name: "ShowerChamp (Highest Streak of Shower)", icon: "Award", completed: 8, required: 20},
+    { name: "MonkeyLoo(3 Weeks of No Showering)", icon: "Banana", completed: 2, required: 21 },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-100 to-blue-200">
       <div className="container mx-auto px-4 py-16">

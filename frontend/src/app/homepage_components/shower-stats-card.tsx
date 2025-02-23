@@ -21,6 +21,11 @@ const timePeriods = {
   year: "this year",
 }
 
+// Dummy variable for testing
+const user = {
+  id: "315",
+}
+
 export default function CalorieAndStatsCard({ stepsCount, completed }: CalorieAndStatsCardProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<keyof typeof timePeriods>("today")
   const [baseGoals, setBaseGoals] = useState({
@@ -114,7 +119,7 @@ export default function CalorieAndStatsCard({ stepsCount, completed }: CalorieAn
     }))
   }
 
-  const handleShowerTaken = () => {
+  const handleShowerTaken = async (e) => {
     setShowersTaken((prev) => prev + 1)
     setStreak((prev) => {
       const newStreak = prev + 1
@@ -122,12 +127,52 @@ export default function CalorieAndStatsCard({ stepsCount, completed }: CalorieAn
       return newStreak
     })
     setLastShowerTime(Date.now())
+
+    e.preventDefault(); // Prevents page reload
+
+    const postData = {
+      userid: user.id,
+      date: new Date().toISOString().substring(0, 10),
+      count: 1,
+    };
+    try {
+      const res = await fetch("http://127.0.0.1:5000/api/shower/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      });
+
+    } catch (error) {
+      console.error("Error:", error);
+    }
   }
 
-  const handleUndoShower = () => {
+  const handleUndoShower = async (e) => {
     if (showersTaken > 0) {
       setShowersTaken((prev) => prev - 1)
       setStreak((prev) => Math.max(0, prev - 1))
+      
+      e.preventDefault(); // Prevents page reload
+
+      const postData = {
+        userid: user.id,
+        date: new Date().toISOString().substring(0, 10),
+        count: -1,
+      };
+      try {
+        const res = await fetch("http://127.0.0.1:5000/api/shower/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(postData),
+        });
+
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   }
 
