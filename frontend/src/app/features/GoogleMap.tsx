@@ -3,6 +3,7 @@
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { useState } from "react";
 import { useEffect } from "react";
+import { Autocomplete } from "@react-google-maps/api";
 
 
 const containerStyle = {
@@ -83,38 +84,32 @@ export default function GoogleMapsComponent() {
   const [suggestions, setSuggestions] = useState<{ place_id: string; description: string }[]>([]);
   const [searchedLocation, setSearchedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
-  // Fetch auto-complete suggestions
-  const getSuggestions = async (input: string) => {
-    if (!input) {
-      setSuggestions([]);
-      return;
-    }
-  
-    try {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`);
-  
-      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-  
-      const data = await response.json();
-      console.log("API Response:", data);
-  
-      if (data.status === "OK") {
-        setSuggestions(data.predictions);
-      } else {
-        console.error("Autocomplete Error:", data.status, data.error_message);
-        setSuggestions([]);
+  const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
+    setAutocomplete(autocompleteInstance);
+  };
+
+  const onPlaceChanged = () => {
+    if (autocomplete) {
+      const place = autocomplete.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const location = {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        };
+        setMapCenter(location);
+        setSearchedLocation(location);
       }
-    } catch (error) {
-      console.error("Error fetching autocomplete:", error);
     }
   };
+  
 
   // Handle selection of a place
   const handleSelectSuggestion = async (placeId: string) => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&key=${apiKey}`
+        "https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&key=${apiKey}"
       );
       const data = await response.json();
 
@@ -136,16 +131,14 @@ export default function GoogleMapsComponent() {
     <div className="relative w-full max-w-3xl">
       {/* Search Bar with Autocomplete */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-3/4 flex flex-col bg-white shadow-lg rounded-lg">
-        <input
-          type="text"
-          placeholder="Enter location..."
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            getSuggestions(e.target.value); // Ensure getSuggestions is defined here
-          }}
-          className="border p-2 w-full rounded-t-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
-        />
+      <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
+      <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+  <input
+    type="text"
+    placeholder="Enter location..."
+    className="border p-2 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
+  />
+</Autocomplete></LoadScript>
         {/* Suggestions Dropdown */}
         {suggestions.length > 0 && (
           <ul className="absolute top-full left-0 w-full bg-white border rounded-b-lg shadow-md max-h-40 overflow-auto">
