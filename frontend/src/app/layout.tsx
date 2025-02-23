@@ -34,7 +34,7 @@ export default function RootLayout({
               {/* Navigation Links */}
               <div className="flex items-center space-x-6">
                 <Link href="/" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
-                  <Home className="h-5 w-5" /> Home
+                  <Home className="h-5 w-5" /> Dashboard
                 </Link>
                 <Link href="/badges" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
                   <Award className="h-5 w-5" /> Badges
@@ -62,7 +62,6 @@ export default function RootLayout({
             </div>
           </nav>
         </div>
-
         {children}
       </body>
     </html>

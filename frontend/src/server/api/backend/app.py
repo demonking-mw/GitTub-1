@@ -1,14 +1,16 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from pymongo import MongoClient
 from bson import ObjectId
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 # MongoDB connection
 # TODO: Replace this with actual MongoDB URI
 # mongo_uri = os.environ.get('MONGO_URI', 'mongodb://localhost:27017')
-mongo_uri = 'mongodb+srv://lizhiyijerry:cXdva5lTxTJQYTGx@jerrycluster0.1etki.mongodb.net/'
+mongo_uri = 'mongodb+srv://hacktheCan:gittub5000@cluster1.u9mec.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1'
 client = MongoClient(mongo_uri)
 db = client['user_database']
 users_collection = db['User']

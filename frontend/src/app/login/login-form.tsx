@@ -4,10 +4,9 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-export default function SignupForm() {
+export default function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [passwordAgain, setPasswordAgain] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
 
@@ -15,33 +14,22 @@ export default function SignupForm() {
     e.preventDefault()
     setError("")
 
-    // Basic validation: ensure both password fields match
-    if (password !== passwordAgain) {
-      setError("Passwords do not match")
-      return
-    }
-
     try {
-      // Call the API endpoint to create the user account
+      // Call the API endpoint to check/create the user account
       const response = await fetch("http://127.0.0.1:5000/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Using email for both userid and email; adjust as needed
-        body: JSON.stringify({ userid: email, email: email })
+        body: JSON.stringify({ userid: password, email: email })
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        setError(errorData.error || "Failed to sign up")
+        setError(errorData.error || "Invalid email or password")
       } else {
+        // If successful, redirect to the homepage (or dashboard)
         const data = await response.json()
-        // If the user already exists, you can show an error message
-        if (!data.createdNew) {
-          setError("User already exists")
-        } else {
-          // On success, redirect to the homepage (or dashboard)
-          router.push("/homepage")
-        }
+        router.push("/homepage")
       }
     } catch (err) {
       setError("An error occurred. Please try again later.")
@@ -76,34 +64,16 @@ export default function SignupForm() {
             id="password"
             name="password"
             type="password"
-            autoComplete="new-password"
+            autoComplete="current-password"
             required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900"
+            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        {/* Password Again / Confirm Password Field */}
-        <div>
-          <label htmlFor="password-again" className="sr-only">
-            Confirm Password
-          </label>
-          <input
-            id="password-again"
-            name="password-again"
-            type="password"
-            autoComplete="new-password"
-            required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            placeholder="Password Again"
-            value={passwordAgain}
-            onChange={(e) => setPasswordAgain(e.target.value)}
-          />
-        </div>
       </div>
 
-      {/* Remember Me Checkbox */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
@@ -116,20 +86,22 @@ export default function SignupForm() {
             Remember me
           </label>
         </div>
+
+        <div className="text-sm">
+          <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Forgot your password?
+          </a>
+        </div>
       </div>
 
-      {/* Error Message */}
       {error && <div className="text-red-500 text-sm">{error}</div>}
 
-      {/* Submit Button */}
       <div>
         <button
           type="submit"
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent 
-                     text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 
-                     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Sign up
+          Sign in
         </button>
       </div>
     </form>
