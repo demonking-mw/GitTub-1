@@ -98,12 +98,54 @@ export default function GoogleMapsComponent() {
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
         };
-        setMapCenter(location);
+        //setMapCenter(location);
         setSearchedLocation(location);
+        findNearestPOI(place.adr_address);
       }
     }
   };
   
+  // Function to find the nearest POI
+  const findNearestPOI = async (location: string) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          location
+        )}&key=${apiKey}`
+      );
+      const data = await response.json();
+
+      if (data.status === "OK") {
+        const userLocation = data.results[0].geometry.location;
+        console.log("User Location:", userLocation);
+
+        let closestPlace = places[0];
+        let minDistance = Number.MAX_VALUE;
+
+        places.forEach((place) => {
+          const distance = Math.sqrt(
+            Math.pow(place.position.lat - userLocation.lat, 2) +
+              Math.pow(place.position.lng - userLocation.lng, 2)
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestPlace = place;
+          }
+        });
+
+        console.log("Closest POI:", closestPlace);
+
+        // Update map center and highlight nearest POI
+        setMapCenter(closestPlace.position);
+        setSelectedPlace(closestPlace);
+      } else {
+        alert("Location not found. Try again!");
+      }
+    } catch (error) {
+      console.error("Error fetching geocode data:", error);
+    }
+  };
+
 
   // Handle selection of a place
   const handleSelectSuggestion = async (placeId: string) => {
@@ -115,7 +157,7 @@ export default function GoogleMapsComponent() {
 
       if (data.status === "OK") {
         const location = data.results[0].geometry.location;
-        setMapCenter(location);
+        //setMapCenter(location);
         setSearchedLocation(location);
         setSuggestions([]);
         setSearchQuery(data.results[0].formatted_address);
@@ -163,7 +205,7 @@ export default function GoogleMapsComponent() {
           ))}
 
           {/* Show searched location marker */}
-          {searchedLocation && <Marker position={searchedLocation} icon="https://maps.google.com/mapfiles/ms/icons/green-dot.png" />}
+          {searchedLocation && <Marker position={searchedLocation} icon={{url: "https://maps.google.com/mapfiles/kml/shapes/man.png", scaledSize: new window.google.maps.Size(40, 40),}} />}
 
           {selectedPlace && (
             <InfoWindow position={selectedPlace.position} onCloseClick={() => setSelectedPlace(null)}>
