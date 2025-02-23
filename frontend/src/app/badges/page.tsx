@@ -7,18 +7,22 @@ import {
   Cloud,
   Bot,
   CheckCircle,
+  CalendarX,
+  Banana,
 } from "lucide-react";
 
 import { WaterDrops } from "@/components/waterdrops";
 
 // Updated test array of badges with progress
 const userBadges = [
-  { name: "Water Saver", icon: "Droplet", completed: 1, required: 10 },
-  { name: "Quick Shower", icon: "Zap", completed: 5, required: 5 },
-  { name: "Steam Master", icon: "Cloud", completed: 3, required: 5 },
-  { name: "Eco Warrior", icon: "Shield", completed: 20, required: 20 },
-  { name: "Shower Champion", icon: "Award", completed: 8, required: 10 },
-  { name: "Hot Streak", icon: "Flame", completed: 2, required: 7 },
+  { name: "WaterSaver (Least Shower In A Month)", icon: "Droplet", completed: 11, required: 10},
+  { name: "NoWhereToBeShow (Longest Streak of Goal Fail)", icon: "CalendarX", completed: 5, required: 8 },
+  { name: "SteamMaster (Most Shower A Day)", icon: "Cloud", completed: 3, required: 5 },
+  { name: "ShoWarrior (Most Shower A Month)", icon: "Shield", completed: 20, required: 20 },
+  { name: "NoShowerAfterHangout(Freak)", icon: "Flame", completed: 8, required: 10 },
+  { name: "HotFreak (Person with the shortest time to hit 69 showers)", icon: "Zap", completed: 15, required: 69 },
+  { name: "ShowerChamp (Highest Streak of Shower)", icon: "Award", completed: 8, required: 20},
+  { name: "MonkeyLoo(3 Weeks of No Showering)", icon: "Banana", completed: 2, required: 21 },
 ];
 
 const iconComponents = {
@@ -28,6 +32,8 @@ const iconComponents = {
   Zap,
   Flame,
   Cloud,
+  CalendarX,
+  Banana,
 };
 
 // AI comment variable
