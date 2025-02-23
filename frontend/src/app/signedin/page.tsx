@@ -2,6 +2,7 @@ import { Home, Award, ShowerHeadIcon as Shower } from "lucide-react"
 import CalorieAndStatsCard from "../homepage_components/shower-stats-card"
 import ContributionGraph from "../homepage_components/contribution-graph"
 import BackgroundEffects from "../homepage_components/background-effects"
+import { metadata } from "../layout"
 
 export default function DashboardPage() {
   return (

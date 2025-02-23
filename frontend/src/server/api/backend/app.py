@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from pymongo import MongoClient
 from bson import ObjectId
 import os
 from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)
 
 # MongoDB connection
 # TODO: Replace this with actual MongoDB URI
@@ -125,6 +127,33 @@ def get_shower_count():
         'userid': userid,
         'date': date,
         'shower_count': shower_count
+    })
+
+@app.route('/api/hotfreak', methods=['POST'])
+def get_hotfreak():
+    if not request.json or 'userid' not in request.json or 'date' not in request.json:
+        return jsonify({'error': 'Bad request. userid and date are required.'}), 400
+
+    userid = request.json['userid']
+    date = request.json['date']
+
+    # Validate date format
+    try:
+        datetime.strptime(date, '%Y-%m-%d')
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
+
+    # Find the user
+    user = users_collection.find_one({'userid': userid})
+    if not user:
+        return jsonify({'error': 'User not found.'}), 404
+
+    # Get the total shower count
+    total_count = sum(user.get('showers', {}).values())
+
+    return jsonify({
+        'userid': userid,
+        'total_shower_count': total_count
     })
 
 @app.errorhandler(400)

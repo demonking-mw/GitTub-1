@@ -1,5 +1,5 @@
 import type React from "react";
-import "./globals.css";
+import "../globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
@@ -31,13 +31,29 @@ export default function RootLayout({
                 GitTub
               </Link>
 
+              {/* Navigation Links */}
+              <div className="flex items-center space-x-6">
+                <Link href="/signedin" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
+                  <Home className="h-5 w-5" /> Home
+                </Link>
+                <Link href="/signedin/badges" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
+                  <Award className="h-5 w-5" /> Badges
+                </Link>
+                <Link href="/signedin/shower" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
+                  <Shower className="h-5 w-5" /> Shower
+                </Link>
+                <Link href="/signedin/features" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
+                  <Star className="h-5 w-5" /> Map
+                </Link>
+                <Link href="/signedin/about" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
+                  <Info className="h-5 w-5" /> About
+                </Link>
+              </div>
+
               {/* Auth Buttons */}
               <div className="space-x-4">
-                <button className="rounded bg-[#2C3E50] px-4 py-2 text-white hover:bg-[#1A2A3A]">
-                  Login
-                </button>
                 <button className="rounded bg-[#87CEFA] px-4 py-2 text-[#1A2A3A] hover:bg-[#4A90E2] hover:text-white">
-                  Sign Up
+                  Sign Out
                 </button>
               </div>
             </div>
