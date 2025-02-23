@@ -33,12 +33,16 @@ export default function RootLayout({
 
               {/* Auth Buttons */}
               <div className="space-x-4">
-                <button className="rounded bg-[#2C3E50] px-4 py-2 text-white hover:bg-[#1A2A3A]">
-                  Login
-                </button>
-                <button className="rounded bg-[#87CEFA] px-4 py-2 text-[#1A2A3A] hover:bg-[#4A90E2] hover:text-white">
-                  Sign Up
-                </button>
+                <Link href="/login">
+                  <button className="rounded bg-[#2C3E50] px-4 py-2 text-white transition-all duration-200 hover:bg-[#1A2A3A]">
+                    Login
+                  </button>
+                </Link>
+                <Link href="/signup">
+                  <button className="rounded bg-[#87CEFA] px-4 py-2 text-[#1A2A3A] transition-all duration-200 hover:bg-[#4A90E2] hover:text-white">
+                    Sign Up
+                  </button>
+                </Link>
               </div>
             </div>
           </nav>
