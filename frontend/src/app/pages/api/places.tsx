@@ -1,3 +1,4 @@
+//not in use, was a workaround that was abandoned because of a better workaround
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

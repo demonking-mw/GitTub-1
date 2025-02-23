@@ -43,7 +43,7 @@ export default function RootLayout({
                   <Shower className="h-5 w-5" /> Shower
                 </Link>
                 <Link href="/features" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
-                  <Star className="h-5 w-5" /> Features
+                  <Star className="h-5 w-5" /> Map
                 </Link>
                 <Link href="/about" className="flex items-center gap-2 text-white hover:text-[#87CEFA]">
                   <Info className="h-5 w-5" /> About
