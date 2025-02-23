@@ -1,6 +1,7 @@
 import Image from "next/image"
 import { WaterDrops } from "./components/waterdrops";
 
+
 export default function Home() {
   return (
     <main className="min-h-screen">

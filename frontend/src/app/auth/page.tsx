@@ -3,9 +3,10 @@
 import { signIn } from "next-auth/react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { WaterDrops } from "@/components/waterdrops";
-import { Login } from "@/components/login";
+import { GoogleAuth } from "@/components/login";
 
 const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+console.log("Google Client ID:", clientId);
 
 export default function LoginPage() {
   return (
@@ -16,7 +17,7 @@ export default function LoginPage() {
           <h1 className="mb-6 text-center text-3xl font-bold text-gray-800">
             Sign up or Log in to GitTub with Google
           </h1>
-          <Login />
+          <GoogleAuth />
         </div>
       </div>
     </GoogleOAuthProvider>
